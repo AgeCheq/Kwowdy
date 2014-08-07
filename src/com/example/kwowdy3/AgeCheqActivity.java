@@ -19,12 +19,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.agecheq.kwowdy3.R;
-import com.agecheq.lib.AgeCheckServerInterface;
+import com.agecheq.lib.AgeCheqServerInterface;
 import com.agecheq.lib.AgeCheqApi;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 
-public class AgeCheqActivity  extends Activity implements AgeCheckServerInterface {
+public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface {
 	
 	private String DevKey   = "06c3a8ba-8d2e-429c-9ce6-4f86a70815d6";
 	private String AppId    = "21cdc227-48ad-4cf5-a67c-92f00a3dbef7";
@@ -135,7 +135,7 @@ public class AgeCheqActivity  extends Activity implements AgeCheckServerInterfac
 			Log.d("zz", "ParentID= *" + ParentID + "*");			
 			
 			//register the device passing the AgeCheq Parent Dashboard username
-			AgeCheqApi.register(this, DevKey, DeviceId, "New Android Device", ParentID);
+			AgeCheqApi.registerDevice(this, DevKey, DeviceId, "New Android Device", ParentID);
 		}
 		
 	}
@@ -252,7 +252,7 @@ public class AgeCheqActivity  extends Activity implements AgeCheckServerInterfac
     }
     
     @Override
-    public void onRegisterResponse(String rtn, String rtnmsg) {
+    public void onRegisterDeviceResponse(String rtn, String rtnmsg) {
     
     	
     	Log.d("zz", "onRegisterResponse");     	
@@ -328,7 +328,7 @@ public class AgeCheqActivity  extends Activity implements AgeCheckServerInterfac
     }    
     
     @Override
-    public void onAgeCheckServerError(String paramString) {
+    public void onAgeCheqServerError(String paramString) {
     	
     }
     @Override
