@@ -34,7 +34,7 @@
         android:layout_below="@+id/textHeading"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:text="@string/explainParentalConsent" />
+        android:text="@string/connecting" />
 
     <EditText
         android:id="@+id/editTextField"

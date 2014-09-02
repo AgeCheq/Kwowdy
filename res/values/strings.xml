@@ -56,6 +56,8 @@
         <string name="giveParentalConsent">I Need Your Parent\'s Permission!</string>
         <string name="oneMoreStep">One More Step!</string>
         <string name="parentalVerification">I\'ll need your zip code to give you an accurate weather forecast.  However, you must have your parent or guardian\'s permission before I can collect it!  Ask your parent or guardian for their AgeCheq Parent Dashboard user name, and enter it below. </string>
+        <string name="connecting">I\'m talking to the Internet to see about getting you that weather info.  Just give me a second!</string>
+        <string name="connectionFailed">Sorry!  I can\'t give you the weather right now, because I can\'t reach the Internet.  Maybe you can try later?</string>
         <string name="explainParentalConsent">Please ask your parent of guardian to log into the AgeCheq Parent Dashboard and authorize Kwowdy to collect your ZIP code.</string>
         <string name="parentNotSetUp">Your parent doesn\'t have one yet?  Touch this button to get one.  It\'s free!</string>
         <string name="btnRegister">Register Your AgeCheq Parent Account</string>

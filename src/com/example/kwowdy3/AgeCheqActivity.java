@@ -19,12 +19,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.agecheq.kwowdy3.R;
-import com.agecheq.lib.AgeCheqServerInterface;
 import com.agecheq.lib.AgeCheqApi;
+import com.agecheq.lib.AgeCheqServerInterface;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 
-public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface {
+
+public class AgeCheqActivity extends Activity implements AgeCheqServerInterface {
 	
 	private String DevKey   = "06c3a8ba-8d2e-429c-9ce6-4f86a70815d6";
 	private String AppId    = "21cdc227-48ad-4cf5-a67c-92f00a3dbef7";
@@ -45,9 +46,6 @@ public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface
 	    if (!HomeActivity.globalDeviceID.equals("")) {
 	    	DeviceId = HomeActivity.globalDeviceID;
 	    }
-	    
-	    //get the device id even if it is already stored- just in case it has changed
-	    new GetDeviceId().execute("");
 	    
 		//lock in portrait
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); 
@@ -75,14 +73,14 @@ public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface
 		EditText editText = (EditText)findViewById(R.id.editTextField);
 		editText.setText("");
 		
-		doPing();
+		doCheck();
 	}
 	
 	//----------------------------------------
 	// AgeCheq Commands
 	//----------------------------------------
 	private void doPing() {
-		AgeCheqApi.ping(this);
+		AgeCheqApi.isRegistered(this,DevKey,"PING_REQUEST");
 	}
 	
 	private void doIsRegistered() {
@@ -110,12 +108,18 @@ public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface
 		}
 		else
 		{
+			/*
 			AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
 		    dlgAlert.setMessage("NO DEVICE ID");
 		    dlgAlert.setTitle("ERROR");              
 		    dlgAlert.setPositiveButton("OK", null);
 		    dlgAlert.setCancelable(true);
 		    dlgAlert.create().show();
+		    */
+		    
+			//get the device id even if it is already stored- just in case it has changed
+		    new GetDeviceId().execute("");
+		    
 		}
 		
 	}
@@ -135,7 +139,7 @@ public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface
 			Log.d("zz", "ParentID= *" + ParentID + "*");			
 			
 			//register the device passing the AgeCheq Parent Dashboard username
-			AgeCheqApi.registerDevice(this, DevKey, DeviceId, "New Android Device", ParentID);
+			AgeCheqApi.register(this, DevKey, DeviceId, "New Android Device", ParentID);
 		}
 		
 	}
@@ -213,46 +217,32 @@ public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface
 	//----------------------------------------
 	// Response Handlers
 	//----------------------------------------
+	
+    
     @Override
-    public void onPingResponse(String pingResponse) {
-    	/*
-		AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
-	    dlgAlert.setMessage("Ping Response = " + pingResponse);
-	    dlgAlert.setTitle("PING SERVER");              
-	    dlgAlert.setPositiveButton("OK", null);
-	    dlgAlert.setCancelable(true);
-	    dlgAlert.create().show();
-    	*/
+    public void onIsRegisteredResponse(String rtn, String rtnmsg, Boolean agecheq_deviceregistered,Boolean agegate_deviceregistered) {
+		
+    	//isRegistered is not used in favor of the Check API call
     	
-    	if (pingResponse.equals("ok") )
+    	if (rtn.equals("ok") )
     	{
-    		doCheck();
+    		//doCheck();
     		
     	}
     	else
     	{
-    		//TODO: turn away the user
+    		//Tell the user that the Internet has failed for whatever reason
     		
+     	    //get the text paragraph
+    	    TextView textParagraph = (TextView) findViewById(R.id.textParagraph);
+    	    
+    	    //set the text of the paragraph to say that the connection failed
+    	    textParagraph.setText(R.string.connectionFailed);
     	}
     }
     
     @Override
-    public void onIsRegisteredResponse(String rtn, String rtnmsg, Boolean deviceregistered) {
-		
-    	//isRegistered is not used in favor of the Check API call
-    	
-    	/*
-    	AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
-	    dlgAlert.setMessage("IsRegistered Response = " + rtn + "-" + rtnmsg + "-" + deviceregistered);
-	    dlgAlert.setTitle("IS REGISTERED");              
-	    dlgAlert.setPositiveButton("OK", null);
-	    dlgAlert.setCancelable(true);
-	    dlgAlert.create().show();
-	    */
-    }
-    
-    @Override
-    public void onRegisterDeviceResponse(String rtn, String rtnmsg) {
+    public void onRegisterResponse(String rtn, String rtnmsg) {
     
     	
     	Log.d("zz", "onRegisterResponse");     	
@@ -278,7 +268,20 @@ public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface
     }    
     
     @Override
-    public void onCheckResponse(String rtn, String rtnmsg, Boolean deviceregistered, Boolean appauthorized, Boolean appblocked, Boolean knowndevice, Boolean under13, Boolean under18, int age) 
+    public void onCheckResponse(String rtn, String rtnmsg, int checktype, 
+			  Boolean deviceregistered, 
+			  Boolean appauthorized,
+			  Boolean appblocked,
+			  int agecheq_parentverified,	  
+			  Boolean agecheq_under13,
+			  Boolean agecheq_under18,
+			  Boolean agecheq_underdevage,
+			  int agecheq_trials,
+			  Boolean agegate_deviceregistered,
+			  Boolean agegate_under13,	  
+			  Boolean agegate_under18,
+			  Boolean agegate_underdevage,
+			  String associateddata)
     {
     	if (boolDebug) {
 	    	AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
@@ -491,6 +494,7 @@ public class AgeCheqActivity  extends Activity implements AgeCheqServerInterface
     	@Override
     	protected void onPostExecute(String result) {
     		DeviceId = result;
+    		doCheck();
     	}
     }
 
