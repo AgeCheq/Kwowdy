@@ -19,8 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.agecheq.kwowdy3.R;
-import com.agecheq.lib.AgeCheqApi;
-import com.agecheq.lib.AgeCheqServerInterface;
+import com.agecheq.agecheqlib.*;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
 
@@ -29,7 +28,7 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
 	
 	private String DevKey   = "06c3a8ba-8d2e-429c-9ce6-4f86a70815d6";
 	private String AppId    = "21cdc227-48ad-4cf5-a67c-92f00a3dbef7";
-	private String DeviceId = "";
+	private String AgeCheqPIN = "";
 	public  String ZipCode  = "";
 	
 	private boolean boolDebug = false;
@@ -43,8 +42,12 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
 	    if (!HomeActivity.globalZipcode.equals("")) {
 	    	ZipCode = HomeActivity.globalZipcode;
 	    }
-	    if (!HomeActivity.globalDeviceID.equals("")) {
-	    	DeviceId = HomeActivity.globalDeviceID;
+	    
+
+	    if (!HomeActivity.globalChildID.equals("")) {
+	    	s
+	    	//grab the AgeCheq PIN from the home activity
+	    	AgeCheqPIN = HomeActivity.globalChildID;
 	    }
 	    
 		//lock in portrait
@@ -79,70 +82,22 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
 	//----------------------------------------
 	// AgeCheq Commands
 	//----------------------------------------
-	private void doPing() {
-		AgeCheqApi.isRegistered(this,DevKey,"PING_REQUEST");
-	}
-	
-	private void doIsRegistered() {
-
-		if (!DeviceId.equals("") )
-		{
-			AgeCheqApi.isRegistered(this, DevKey, DeviceId);
-		}
-		else
-		{
-			AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
-		    dlgAlert.setMessage("NO DEVICE ID");
-		    dlgAlert.setTitle("ERROR");              
-		    dlgAlert.setPositiveButton("OK", null);
-		    dlgAlert.setCancelable(true);
-		    dlgAlert.create().show();
-		}
-	}
 	
 	private void doCheck() {
-		if (!DeviceId.equals("") )
+		
+	
+		if (!AgeCheqPIN.equals("") )
 		{
-			AgeCheqApi.check(this, DevKey, DeviceId, AppId);
-			
+			AgeCheqApi.check(this, DevKey, AppId, AgeCheqPIN);
 		}
 		else
 		{
-			/*
-			AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
-		    dlgAlert.setMessage("NO DEVICE ID");
-		    dlgAlert.setTitle("ERROR");              
-		    dlgAlert.setPositiveButton("OK", null);
-		    dlgAlert.setCancelable(true);
-		    dlgAlert.create().show();
-		    */
-		    
-			//get the device id even if it is already stored- just in case it has changed
-		    new GetDeviceId().execute("");
-		    
+			showNoChildID();
 		}
-		
+
 	}
 	
-	private void doRegister() {
-	
-		//get the edit field
-		EditText editText = (EditText)findViewById(R.id.editTextField);
-		
-		if (!editText.getText().toString().equals("")) {
-			
-			String ParentID = editText.getText().toString();
-	
-			Log.d("zz", "doRegister");
-			Log.d("zz", "DevKey= " + DevKey);
-			Log.d("zz", "DeviceId= " + DeviceId);	
-			Log.d("zz", "ParentID= *" + ParentID + "*");			
-			
-			//register the device passing the AgeCheq Parent Dashboard username
-			AgeCheqApi.register(this, DevKey, DeviceId, "New Android Device", ParentID);
-		}
-		
-	}
+
 	
 	//----------------------------------------
 	// Multi-Button Clicks
@@ -161,16 +116,23 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
 
 		//get the text on the button on the click
 		Button tempBtn = (Button)view;
-		
-		//register the parent dashboard account
+
+		//get the AgeCheqPIN and test 
 		if (tempBtn.getText().toString().equals(getResources().getString(R.string.btnRegister))) {
-			//try to register the parent dashboard account
-			doRegister();
+			
+			//collect the AgeCheq PIN
+			EditText editText = (EditText)findViewById(R.id.editTextField);
+			AgeCheqPIN = editText.getText().toString();
+			
+			//check for parental approval 
+			doCheck();
+			
 		}
 		
-		//check for parental approval again
-		if (tempBtn.getText().toString().equals(getResources().getString(R.string.btnCheckForApproval))) {
-			//check for parental approval again
+		//check for parental approval 
+		if ( tempBtn.getText().toString().equals(getResources().getString(R.string.btnCheckForApproval)))  {
+			
+			//We already have an AgeCheq PIN, check for parental approval again
 			doCheck();
 		} 
 		
@@ -218,18 +180,32 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
 	// Response Handlers
 	//----------------------------------------
 	
-    
     @Override
-    public void onIsRegisteredResponse(String rtn, String rtnmsg, Boolean agecheq_deviceregistered,Boolean agegate_deviceregistered) {
-		
-    	//isRegistered is not used in favor of the Check API call
+    public void onCheckResponse(String rtn, String rtnmsg, int checktype, 
+			  Boolean appauthorized,
+			  Boolean appblocked,
+			  int parentverified,	  
+			  Boolean under13,
+			  Boolean under18,
+			  Boolean underdevage,
+			  int trials)
+    {
     	
-    	if (rtn.equals("ok") )
-    	{
-    		//doCheck();
-    		
+    	
+    	if (boolDebug) {
+	    	AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
+		    dlgAlert.setMessage("Check Response = " + rtn + ",AppAuthorized=" + appauthorized + ",AppBlocked=" + appblocked);
+		    dlgAlert.setTitle("CHECK");              
+		    dlgAlert.setPositiveButton("OK", null);
+		    dlgAlert.setCancelable(true);
+		    dlgAlert.create().show();
     	}
-    	else
+    	
+    	Log.d("zz", "onCheckResponse");     	
+    	Log.d("zz", "rtn=" + rtn);      	
+    	Log.d("zz", "rtnmsg=" + rtnmsg);   
+
+    	if (!rtn.equals("ok") )
     	{
     		//Tell the user that the Internet has failed for whatever reason
     		
@@ -239,86 +215,38 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
     	    //set the text of the paragraph to say that the connection failed
     	    textParagraph.setText(R.string.connectionFailed);
     	}
-    }
-    
-    @Override
-    public void onRegisterResponse(String rtn, String rtnmsg) {
-    
-    	
-    	Log.d("zz", "onRegisterResponse");     	
-    	Log.d("zz", "rtn=" + rtn);      	
-    	Log.d("zz", "rtnmsg=" + rtnmsg);   
-    	
-	    if (rtn.equals("ok")) {
+    	else
+    	{
+    		//Save the AgeCheqPIN
+    		HomeActivity.globalChildID = AgeCheqPIN;
+    		SharedPreferences settings = getSharedPreferences(HomeActivity.PREFS_NAME, 0);
+    		SharedPreferences.Editor editor = settings.edit();
+    		editor.putString("childid", HomeActivity.globalChildID);
+    		editor.commit();
 	    	
-	    	//This device has *just* been successfully registered to a parent!  
-	    	//showUnauthorizedDevice(true);
-	    	
-	    	doCheck();
-	    	
-	    } else {
-			AlertDialog.Builder dlgAlert1  = new AlertDialog.Builder(this);                      
-		    dlgAlert1.setMessage(rtnmsg);
-		    dlgAlert1.setTitle("ERROR");              
-		    dlgAlert1.setPositiveButton("OK", null);
-		    dlgAlert1.setCancelable(true);
-		    dlgAlert1.create().show();
-	    }
-	    
-    }    
-    
-    @Override
-    public void onCheckResponse(String rtn, String rtnmsg, int checktype, 
-			  Boolean deviceregistered, 
-			  Boolean appauthorized,
-			  Boolean appblocked,
-			  int agecheq_parentverified,	  
-			  Boolean agecheq_under13,
-			  Boolean agecheq_under18,
-			  Boolean agecheq_underdevage,
-			  int agecheq_trials,
-			  Boolean agegate_deviceregistered,
-			  Boolean agegate_under13,	  
-			  Boolean agegate_under18,
-			  Boolean agegate_underdevage,
-			  String associateddata)
-    {
-    	if (boolDebug) {
-	    	AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);                      
-		    dlgAlert.setMessage("Check Response = " + rtn +"-DeviceRegistered=" + deviceregistered + ",AppAuthorized=" + appauthorized + ",AppBlocked=" + appblocked);
-		    dlgAlert.setTitle("CHECK");              
-		    dlgAlert.setPositiveButton("OK", null);
-		    dlgAlert.setCancelable(true);
-		    dlgAlert.create().show();
-    	}
-    	Log.d("zz", "onCheckResponse");     	
-    	Log.d("zz", "rtn=" + rtn);      	
-    	Log.d("zz", "rtnmsg=" + rtnmsg);   
-
-	    
-	    if (!deviceregistered){
-	    	//This device isn't registered yet!
-	    	showUnregisteredDevice();
-	    }
-	    else
-	    {
+	    	//check to see if the app has been authorized to collect PII
 	     	if (!appauthorized) {
 	     		showUnauthorizedDevice(false);
-
+	
 	     	} else {
+	     		//check to see if the app has been blocked by a parent or not
 	     		if (appblocked) {
 	     			showBlockedDevice();
 	     		} else {
+	     			//we are now free to collect a ZIP code from the child
 	     			showZipCodeCollection();
 	     		}
 	     	}
-	    }
+    	}
+	    
     	
     	/*
      	RelativeLayout ua = (RelativeLayout) findViewById(R.id.notauthorized);
      	TextView msg = (TextView) findViewById(R.id.uaMsg);
      	*/
     } 
+    
+   
     
     @Override
     public void onAssociateDataResponse(String rtn, String rtnmsg) {
@@ -330,19 +258,16 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
 	    dlgAlert.create().show();
     }    
     
-    @Override
+    
     public void onAgeCheqServerError(String paramString) {
     	
     }
-    @Override
-    public void onAgegateResponse(String rtn, String rtnmsg) {
-    	
-    }
+    
 
     //-----------------------------------------------
     // UI Setups
     //-----------------------------------------------    
-    private void showUnregisteredDevice() {
+    private void showNoChildID() {
     	
  	    //get the controls
 	    TextView textHeading = (TextView) findViewById(R.id.textHeading);
@@ -461,42 +386,8 @@ public class AgeCheqActivity extends Activity implements AgeCheqServerInterface 
 	    imgCloud.setImageResource(R.drawable.kwowdyhappy);
      }
     
-    //-----------------------------------------------
-    // Get Device ID
-    //-----------------------------------------------
-    private class GetDeviceId extends AsyncTask<String, Void, String> {
-    	@Override
-    	protected String doInBackground(String... params) {
-    		Context c = getApplicationContext();
-    		
-    		Info adInfo = null;
-    		try {
-    			adInfo = AdvertisingIdClient.getAdvertisingIdInfo(c);
-    		}
-    		catch (Exception ex) {
-    			Log.d("zz", "Exception: " + ex.getMessage());
-    		}
-    		  
-    		String id = adInfo.getId();
-    		Log.d("zz", "Device Id=" + id);   
-    		
-    		//Save the device id in the preferences file
-    		/*
-			SharedPreferences settings = getSharedPreferences(HomeActivity.PREFS_NAME, 0);
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putString("deviceid", id);
-		    editor.commit();
-		    */
-    		
-    		return id;
-    	}
-    	
-    	@Override
-    	protected void onPostExecute(String result) {
-    		DeviceId = result;
-    		doCheck();
-    	}
-    }
+
+
 
 
 }

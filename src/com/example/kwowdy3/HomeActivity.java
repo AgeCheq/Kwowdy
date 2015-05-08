@@ -12,7 +12,7 @@ public class HomeActivity extends Activity {
 
 	public static final String PREFS_NAME = "PrefsFile";
 	public static String globalZipcode;
-	public static String globalDeviceID;
+	public static String globalChildID;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -28,7 +28,8 @@ public class HomeActivity extends Activity {
 	    //restore preferences
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         globalZipcode = settings.getString("zipcode","");
-        globalDeviceID = settings.getString("deviceid","");
+        globalChildID = settings.getString("childid","");
+        
 	}
 	
 	

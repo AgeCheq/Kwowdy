@@ -73,7 +73,7 @@ public class ForecastActivity extends Activity {
 		void processFinish(String output);
 	}
 	
-	private class LongRunningGetIO extends AsyncTask <String, Void, String> {
+	public class LongRunningGetIO extends AsyncTask <String, Void, String> {
 
 		
 		protected String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException, IOException {
