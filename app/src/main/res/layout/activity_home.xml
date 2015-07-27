@@ -1,0 +1,78 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    tools:context="com.joybot.agecheq.kwowdy4.HomeActivity"
+    android:background="@drawable/bkgrd">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView3"
+        android:src="@drawable/kwowdy_pickone"
+        android:longClickable="false"
+        android:adjustViewBounds="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerInside"
+        android:maxHeight="120dp"
+        android:layout_centerHorizontal="true" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton"
+        android:src="@drawable/btn_learn_over"
+        android:adjustViewBounds="true"
+        android:scaleType="centerInside"
+        android:layout_below="@+id/imageView3"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:background="#00ffffff"
+        android:clickable="true"
+        android:onClick="doLearn" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton2"
+        android:src="@drawable/btn_know_over"
+        android:scaleType="centerInside"
+        android:background="#00ffffff"
+        android:longClickable="false"
+        android:cropToPadding="false"
+        android:focusable="false"
+        android:adjustViewBounds="true"
+        android:layout_below="@+id/imageButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:onClick="doIdentify" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton3"
+        android:layout_below="@+id/imageButton2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/btn_forecast_over"
+        android:adjustViewBounds="true"
+        android:layout_centerHorizontal="true"
+        android:background="#00ffffff"
+        android:scaleType="centerInside"
+        android:onClick="doForecast" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageButton4"
+        android:layout_below="@+id/imageButton3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/btn_more_over"
+        android:scaleType="centerInside"
+        android:adjustViewBounds="true"
+        android:background="#00ffffff"
+        android:onClick="doAbout" />
+
+
+</RelativeLayout>
